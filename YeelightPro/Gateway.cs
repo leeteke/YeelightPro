@@ -11,7 +11,6 @@ using System.Runtime.Intrinsics.Arm;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using YeelightPro.Models;
 
 namespace YeelightPro
 {
@@ -48,43 +47,42 @@ namespace YeelightPro
         /// </summary>
         /// <returns>查找到的网关信息</returns>
         /// <exception cref="NotImplementedException">该方法目前无法验证，所以切勿使用</exception>
-        public static GatewayInfo? FindGateway()
-        {
-            using Socket udp = new(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+        //public static GatewayInfo? FindGateway()
+        //{
+        //    using Socket udp = new(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
 
-            IPEndPoint iep = new(System.Net.IPAddress.Broadcast, BroadcastPoint);
-            var sendData = Encoding.UTF8.GetBytes(BroadcastMsg);
-            udp.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.Broadcast, 1);
-            //udp.Bind(new IPEndPoint(IPAddress.Any, GetRandomUnusedPort()));
+        //    IPEndPoint iep = new(System.Net.IPAddress.Broadcast, BroadcastPoint);
+        //    var sendData = Encoding.UTF8.GetBytes(BroadcastMsg);
+        //    udp.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.Broadcast, 1);
+           
 
-            string? recMsg = null;//接受到的数据
+        //    string? recMsg = null;//接受到的数据
 
-            using AutoResetEvent are = new(false);//卡裆器
-            Task.Run(() =>
-            {
+        //    using AutoResetEvent are = new(false);//卡裆器
+        //    Task.Run(() =>
+        //    {
+        //        //创建接受客户端
+        //        var recData = new byte[1024];
+        //        _ = udp.Receive(recData);
+        //        recMsg = Encoding.UTF8.GetString(recData).TrimEnd('\0');
+        //        are.Set();
+        //    });
 
-                //创建接受客户端
-                var recData = new byte[1024];
-                _ = udp.Receive(recData);
-                recMsg = Encoding.UTF8.GetString(recData).TrimEnd('\0');
-                are.Set();
-            });
+        //    udp.SendTo(sendData, iep);
 
-            udp.SendTo(sendData, iep);
-
-            //最多灯带
-            if (are.WaitOne(3000))
-            {
-                throw new NotImplementedException(recMsg);
-                // return new S21GatewayInfo(1, "aaa", 123, "1212");
-            }
-            else
-            {
-                return null;
-            }
+        //    //最多等待3秒
+        //    if (are.WaitOne(3000))
+        //    {
+        //        throw new NotImplementedException(recMsg);
+        //        // return new GatewayInfo(1, "aaa", 123, "1212");
+        //    }
+        //    else
+        //    {
+        //        return null;
+        //    }
 
 
-        }
+        //}
 
         /// <summary>
         /// 推测被拆分的设备的所有ID
@@ -156,7 +154,7 @@ namespace YeelightPro
         /// <summary>
         /// 节点设备
         /// </summary>
-        public ConcurrentDictionary<ulong, S21GatewayNodeDeviceModel> NodeDevices => _devices;
+        public ConcurrentDictionary<ulong, GatewayNodeDeviceModel> NodeDevices => _devices;
 
         /// <summary>
         /// 房间信息
@@ -181,7 +179,7 @@ namespace YeelightPro
 
         private uint _uuid = 100000;
         private readonly object _uuidLock = new();
-        private ConcurrentDictionary<ulong, S21GatewayNodeDeviceModel> _devices = new ConcurrentDictionary<ulong, S21GatewayNodeDeviceModel>();//所有设备信息
+        private ConcurrentDictionary<ulong, GatewayNodeDeviceModel> _devices = new ConcurrentDictionary<ulong, GatewayNodeDeviceModel>();//所有设备信息
         private Dictionary<ulong, string> _rooms = new Dictionary<ulong, string>();//所有房间信息
         private Dictionary<ulong, string> _scenes = new Dictionary<ulong, string>();//所有情景模式
         private ConcurrentDictionary<uint, JsonNode> _receiveQueue = new ConcurrentDictionary<uint, JsonNode>();//数据接受池
@@ -191,7 +189,7 @@ namespace YeelightPro
 
         /// <summary>
         ///  YeeligntPro 系列产品
-        /// <para>S21 网关</para>
+        /// <para>网关</para>
         /// <para>根据官方局域⽹协议 V2.4 编写</para>
         /// </summary>
         /// <param name="defaultIP">网关默认IP地址，设置个默认地址，该地址可在连接设备时修改</param>
@@ -249,11 +247,12 @@ namespace YeelightPro
         /// 链接设备
         /// </summary>
         /// <param name="newIPAddress">不设置地址则使用初始化IP</param>
-        /// <exception cref="Exception"></exception>
+        /// <exception cref="GatewayRepeatedConnectException">重复连接</exception>
         public void Connect(string? newIPAddress = null)
         {
             if (_socket?.Connected == true)
-                throw new Exception("重复链接");
+                throw new GatewayRepeatedConnectException();
+                       
 
             if (newIPAddress != null)
             {
@@ -263,7 +262,7 @@ namespace YeelightPro
             _socket?.Dispose();
             _socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             _socket.Connect(new IPEndPoint(IPAddress.Parse(IP), GatewayPoint));
-            RaiseConnectedChanged(true, "连接成功");
+            RaiseConnectedChanged(true, "Success.");
             _receiveBuffer = new byte[_receiveBufferSize];
             _socket.BeginReceive(_receiveBuffer, 0, _receiveBuffer.Length, SocketFlags.None, OnReceive, _socket);
 
@@ -336,7 +335,7 @@ namespace YeelightPro
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public async Task<S21GatewayNodeDeviceModel?> GetNodeDevicePropertiesAsync(ulong id, CancellationToken cancellationToken = default)
+        public async Task<GatewayNodeDeviceModel?> GetNodeDevicePropertiesAsync(ulong id, CancellationToken cancellationToken = default)
         {
 
             try
@@ -380,7 +379,7 @@ namespace YeelightPro
         /// 控制
         /// </summary>
         /// <returns></returns>
-        public async Task<(bool execute, string? msg)> CommandAsync(GatewayCommandModel[] commands, CancellationToken cancellationToken = default)
+        public async Task<(bool executed, string? msg)> CommandAsync(GatewayCommandModel[] commands, CancellationToken cancellationToken = default)
         {
             var ja = new JsonArray();
             foreach (var command in commands)
@@ -407,7 +406,7 @@ namespace YeelightPro
                 }
             }
 
-            return (false, "执行超时，请留意设备变化");
+            return (false, "执行超时，请留意设备变化。");
 
         }
 
@@ -415,7 +414,7 @@ namespace YeelightPro
         /// 场景控制
         /// </summary>
         /// <returns></returns>
-        public async Task<(bool execute, string? msg)> ScenesCommandAsync(GatewayScenesCommandModel[] commands, CancellationToken cancellationToken = default)
+        public async Task<(bool executed, string? msg)> ScenesCommandAsync(GatewayScenesCommandModel[] commands, CancellationToken cancellationToken = default)
         {
             var ja = new JsonArray();
             foreach (var command in commands)
@@ -445,7 +444,7 @@ namespace YeelightPro
                 }
             }
 
-            return (false, "执行超时，请留意设备变化");
+            return (false, "执行超时，请留意设备变化。");
         }
 
         #endregion
@@ -505,7 +504,7 @@ namespace YeelightPro
                 else //断开连接
                 {
                     socket.Close();
-                    RaiseConnectedChanged(false, "断开连接！");
+                    RaiseConnectedChanged(false, "Disconnected.");
                 }
             }
             catch (Exception ex)
@@ -602,11 +601,11 @@ namespace YeelightPro
                     Task.Run(() =>
                     {
                         EventTriggered?.Invoke(this,
-                   new GatewayEventTriggeredEventArgs(
-                        item["id"]!.GetValue<ulong>(),
-                       (GatewayNodeType)item["nt"]!.GetValue<int>(),
-                       item["value"]!.GetValue<string>(),
-                       item["params"]!));
+                            new GatewayEventTriggeredEventArgs(
+                                item["id"]!.GetValue<ulong>(),
+                                (GatewayNodeType)item["nt"]!.GetValue<int>(),
+                                item["value"]!.GetValue<string>(),
+                                item["params"]!));
 
                     });
 
@@ -639,7 +638,7 @@ namespace YeelightPro
                             {
                                 Task.Run(() =>
                                 {
-                                    PropertiesUpdated?.Invoke(this, new GatewayPropertiesUpdatedEventArgs((ulong)id, changed.Value.old, changed.Value.@new));
+                                    PropertiesUpdated?.Invoke(this, new GatewayPropertiesUpdatedEventArgs((ulong)id, device.Type, changed.Value.old, changed.Value.@new));
                                 });
                             }
                         }
@@ -675,7 +674,7 @@ namespace YeelightPro
                     var dev = _devices.GetOrAdd(item.Id, p =>
                     {
                         //新增设备通知
-                        return new S21GatewayNodeDeviceModel()
+                        return new GatewayNodeDeviceModel()
                         {
                             Id = item.Id,
                             NodeType = item.NodeType,
@@ -805,7 +804,7 @@ namespace YeelightPro
         /// <param name="device"></param>
         /// <param name="p"></param>
         /// <returns></returns>
-        private (JsonObject old, JsonObject @new)? AnalysisPropertiesChanged(ref S21GatewayNodeDeviceModel device, JsonObject p)
+        private (JsonObject old, JsonObject @new)? AnalysisPropertiesChanged(ref GatewayNodeDeviceModel device, JsonObject p)
         {
 
             //数据对比更新
@@ -843,9 +842,9 @@ namespace YeelightPro
             var po = p["params"]?.AsObject();
             if (po != null)
             {
-                if (device.Parmas == null)
+                if (device.Params == null)
                 {
-                    device.Parmas = po;
+                    device.Params = po;
                     foreach (var param in po)
                     {
                         @new.Add(param.Key, JsonNode.Parse(param.Value!.AsValue().ToJsonString()));
@@ -856,18 +855,18 @@ namespace YeelightPro
                 {
                     foreach (var item in po)
                     {
-                        if (device.Parmas.ContainsKey(item.Key))
+                        if (device.Params.ContainsKey(item.Key))
                         {
-                            if (device.Parmas[item.Key]?.ToJsonString() != item.Value?.ToJsonString())
+                            if (device.Params[item.Key]?.ToJsonString() != item.Value?.ToJsonString())
                             {
-                                old.Add(item.Key, JsonNode.Parse(device.Parmas[item.Key]!.AsValue().ToJsonString()));
+                                old.Add(item.Key, JsonNode.Parse(device.Params[item.Key]!.AsValue().ToJsonString()));
                                 @new.Add(item.Key, JsonNode.Parse(item.Value!.AsValue().ToJsonString()));
-                                device.Parmas[item.Key] = JsonNode.Parse(item.Value!.AsValue().ToJsonString());
+                                device.Params[item.Key] = JsonNode.Parse(item.Value!.AsValue().ToJsonString());
                             }
                         }
                         else
                         {
-                            device.Parmas.Add(item.Key, JsonNode.Parse(item.Value!.AsValue().ToJsonString()));
+                            device.Params.Add(item.Key, JsonNode.Parse(item.Value!.AsValue().ToJsonString()));
                             @new.Add(item.Key, JsonNode.Parse(item.Value!.AsValue().ToJsonString()));
                         }
 

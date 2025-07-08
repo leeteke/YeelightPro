@@ -7,6 +7,40 @@
     <Nullable>enable</Nullable>
 	<Version>2.4.0</Version>
 	<Authors>leeteke</Authors>
+	<PackageReadmeFile>README.md</PackageReadmeFile>
+	<PackageTags>yeelight;yeelightpro;易来;</PackageTags>
+	<PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+	<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+	<PackageIcon>Yeelight_Pro512x512.png</PackageIcon>
+	<Title>YeelightPro 局域网控制库</Title>
+	<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+	<Description>
+		Y Yeelight Pro照明控制系统由硬件、云端、用户App组成。硬件包括网关、灯具、传感器、面板、全面屏等组成。网关通过蓝牙MESH协议与其他蓝牙mesh子设备进行通信，通过Wi-Fi或者有线与云端/本地服务器通信;
+
+		本库通过 局域网协议与 S21/S21增强版 网关进行本地通讯控制以上描述设备，相关可控制设备详见（https://cn.yeelight.com/zh_CN/pro）；
+
+		（特别说明：非 Yeelight 普通线上产品控制库，也就是连接米家的那些设备，无法使用本库控制。）
+	</Description>
+	<Copyright>MIT</Copyright>
+	<PackageProjectUrl>https://github.com/leeteke/YeelightPro</PackageProjectUrl>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\LICENSE.txt">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Yeelight_Pro512x512.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 
 </Project>

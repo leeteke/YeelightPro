@@ -42,7 +42,7 @@ namespace YeelightPro
         /// <param name="params"></param>
         public GatewayEventTriggeredEventArgs(ulong id,GatewayNodeType nt, string value, JsonNode @params)
         {
-             Id = id;
+            Id = id;
             NodeType = nt;
             Value = value;
             Params = @params;

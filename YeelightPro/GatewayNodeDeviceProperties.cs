@@ -36,6 +36,7 @@ namespace YeelightPro
         /// <summary>
         /// 色温
         /// <para>2700~6500</para>
+        /// <para>P21晴空灯实测1600~8000</para>
         /// <para>步长：1</para>
         /// <para>操作：读、上报、写</para>
         /// </summary>
@@ -108,7 +109,7 @@ namespace YeelightPro
         /// <para>操作：读、上报</para>
         /// <para>仅梦幻帘</para>
         /// </summary>
-        public const string Curtain_TitleRouteSetted = "tra";
+        public const string Curtain_TitleRouteSetted = "trs";
 
 
 
@@ -300,6 +301,7 @@ namespace YeelightPro
         public const string Scene_Key = "key";
         /// <summary>
         /// 情景面板按键事件params属性-按键的次数
+        /// <para>文档里没有这个，但是实测会带这个参数，旋钮的上的按键会使用到此参数</para>
         /// <para>操作：读</para>
         /// </summary>
         public const string Scene_Count = "count";
@@ -339,7 +341,7 @@ namespace YeelightPro
         /// <para>无人移动-0</para>
         /// <para>操作：读、上报</para>
         /// </summary>
-        public const string Sensor_Peson_MotionDetected = "mv";
+        public const string Sensor_Person_MotionDetected = "mv";
         #endregion
 
         #region 门磁
@@ -362,6 +364,13 @@ namespace YeelightPro
         #endregion
 
         #region  旋钮
+
+        /// <summary>
+        /// 第几个？
+        /// <para>非官方文档里的参数，实测是的，在旋钮事件里。但是目前还不知道意义。</para>
+        /// </summary>
+        public const string Knob_Index = "idx";
+
         /// <summary>
         /// 旋钮正常旋转事件params属性-旋钮正常旋转的刻度
         /// <para>反向旋转刻度: -128~0</para>
@@ -398,7 +407,7 @@ namespace YeelightPro
 
         #region 迈睿人体传感器
         /// <summary>
-        /// 当前是否有人移动 （motion detected缩写）
+        /// 当前是否有人移动 
         /// <para>有人移动-1</para>
         /// <para>无人移动-0</para>
         /// <para>迈睿人体传感器</para>

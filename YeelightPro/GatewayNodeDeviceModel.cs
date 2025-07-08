@@ -10,7 +10,7 @@ namespace YeelightPro
     /// <summary>
     /// 节点设备数据模型
     /// </summary>
-    public class S21GatewayNodeDeviceModel
+    public class GatewayNodeDeviceModel
     {
         /// <summary>
         /// 节点类型
@@ -28,7 +28,7 @@ namespace YeelightPro
         public ulong Id { get; set; }
 
         /// <summary>
-        /// 设备类型
+        /// 节点设备类型
         /// </summary>
         public GatewayNodeDeviceType Type { get; set; }
 
@@ -40,7 +40,7 @@ namespace YeelightPro
         /// <summary>
         /// 详情参数
         /// </summary>
-        public JsonObject? Parmas { get; set; }
+        public JsonObject? Params { get; set; }
 
         /// <summary>
         /// 是否在线

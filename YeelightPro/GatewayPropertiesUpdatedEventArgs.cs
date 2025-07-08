@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Text.Json.Nodes;
 using System.Threading.Tasks;
-using YeelightPro.Models;
+using YeelightPro;
 
 namespace YeelightPro
 {
@@ -29,16 +29,21 @@ namespace YeelightPro
         /// 节点ID
         /// </summary>
         public ulong Id { get; }
-
+        /// <summary>
+        /// 设备类型
+        /// </summary>
+        public GatewayNodeDeviceType Type { get; }
         /// <summary>
         /// 属性更新事件参数
         /// </summary>
         /// <param name="id"></param>
+        /// <param name="deviceType"></param>
         /// <param name="old"></param>
         /// <param name="new"></param>
-        public GatewayPropertiesUpdatedEventArgs(ulong id, JsonObject old, JsonObject @new)
+        public GatewayPropertiesUpdatedEventArgs(ulong id, GatewayNodeDeviceType deviceType, JsonObject old, JsonObject @new)
         {
             Id = id;
+            Type = deviceType;
             Old = old;
             New = @new;
         }

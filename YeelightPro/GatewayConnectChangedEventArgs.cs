@@ -11,6 +11,7 @@ namespace YeelightPro
     /// </summary>
     public class GatewayConnectChangedEventArgs : EventArgs
     {
+                     
         /// <summary>
         /// 当前状态
         /// </summary>

@@ -56,7 +56,7 @@ namespace YeelightPro
         /// <summary>
         /// 行为动作
         /// </summary>
-        public S21GatewayCommandActionModel? Action { get; set; }
+        public GatewayCommandActionModel? Action { get; set; }
 
     }
 
@@ -65,26 +65,26 @@ namespace YeelightPro
     /// <summary>
     /// 行为模型
     /// </summary>
-    public class S21GatewayCommandActionModel
+    public class GatewayCommandActionModel
     {
         /// <summary>
         /// 指⽰灯具闪烁提醒（blink）
         /// </summary>
-        public S21GatewayCommandActionBlinkModel? Blink { get; set; }
+        public GatewayCommandActionBlinkModel? Blink { get; set; }
         /// <summary>
         /// 调整窗帘电机动作（motorAdjust）
         /// </summary>
-        public S21GatewayCommandActionMotorAdjustModel? MotorAdjust { get; set; }
+        public GatewayCommandActionMotorAdjustModel? MotorAdjust { get; set; }
         /// <summary>
         /// 取消延时关闭
         /// </summary>
-        public S21GatewayCommandActionDelayCancelModel? DelayCancel { get; set; }
+        public GatewayCommandActionDelayCancelModel? DelayCancel { get; set; }
     }
 
     /// <summary>
     /// 指⽰灯具闪烁提醒（blink）
     /// </summary>
-    public class S21GatewayCommandActionBlinkModel
+    public class GatewayCommandActionBlinkModel
     {
         /// <summary>
         /// 缓慢闪
@@ -113,7 +113,7 @@ namespace YeelightPro
     /// <summary>
     /// 调整窗帘电机动作（motorAdjust）
     /// </summary>
-    public class S21GatewayCommandActionMotorAdjustModel
+    public class GatewayCommandActionMotorAdjustModel
     {
         /// <summary>
         /// 暂停
@@ -148,7 +148,7 @@ namespace YeelightPro
     /// <summary>
     /// 取消空调延时操作
     /// </summary>
-    public class S21GatewayCommandActionDelayCancelModel
+    public class GatewayCommandActionDelayCancelModel
     {
         /// <summary>
         /// 取消延时关闭 固定值
