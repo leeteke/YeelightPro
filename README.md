@@ -7,9 +7,15 @@ Yeelight Pro照明控制系统由硬件、云端、用户App组成。硬件包�
 
 （特别说明：非 Yeelight 普通线上产品控制库，也就是连接米家的那些设备，无法使用本库控制。）
 
-# 基本使用方法
+## Nuget
+[![NUGET](https://img.shields.io/badge/nuget-2.4.0-blue.svg)](https://www.nuget.org/packages/YeelightPro)
 
-设备初始化
+
+    dotnet add package YeelightPro --version 2.4.0
+
+## 基本使用方法
+
+### 初始化
 ``` csharp
        
         private Gateway _gateway;
@@ -49,17 +55,17 @@ Yeelight Pro照明控制系统由硬件、云端、用户App组成。硬件包�
         //设备事件触发事件
         _gateway.EventTriggered += Gateway_EventTriggered;
         //设备属性变化事件
-        _gateway.PropertiesUpdated += _gateway_PropertiesUpdated;
+        _gateway.PropertiesUpdated += Gateway_PropertiesUpdated;
         //连接
         _gateway.Connect();
 
 ```
-控制设备
+### 控制设备
 ``` csharp
-//控制单元分为 属性控制 和行为控制
+//控制逻辑为：生成控制命令->执行控制命令
+//控制命令模板为 GatewayCommandModel
 
-//属性控制举例：构建控制灯具类设备命令
-
+//属性举例：构建控制灯具类设备命令
 var lightCmd=new GatewayCommandModel()
 {
     //节点设备ID 
@@ -74,7 +80,6 @@ var lightCmd=new GatewayCommandModel()
     //渐变事件 单位 毫秒
     Duration=2000
 };
-
 
 
 //行为举例：构建控制床帘类设备命令
@@ -96,5 +101,55 @@ var curtainCmd=new GatewayCommandModel()
 
 //通过命令组进行命令控制执行
 (bool executed, string? msg)=await _gateway.CommandAsync([lightCmd,curtainCmd]);
+
+```
+### 读取设备属性
+
+```csharp
+
+//设备属性模型为 GatewayNodeDeviceModel
+//所有设备属性名称以及定义都放在了 GatewayNodeDeviceProperties
+//其中 设备的详细参数为  GatewayNodeDeviceModel.Params，该类型为System.Text.Json.Nodes.JsonObject
+//并且  设备属性更新事件  与 设备触发事件 的相关参数 也为 System.Text.Json.Nodes.JsonObject 类型
+
+//模型属性举例： 获取 pid为 198888的 ⾊温可调灯具 GatewayNodeDeviceType.Light_Temperature
+
+ var device= _client.NodeDevices[198888];
+//获取灯的亮度
+ var brightness= device.Params[GatewayNodeDeviceProperties.Light_Brightness].GetValue<double>();
+//获取灯的色温
+var brightness= device.Params[GatewayNodeDeviceProperties.Light_ColorTemperature].GetValue<double>();
+
+
+//在属性更新时间里也同样
+private void Gateway_PropertiesUpdated(object? sender, GatewayPropertiesUpdatedEventArgs e)
+{
+     if(e.Id==198888)
+     {
+     //获取灯的上一次值
+      var brightness= e.Old[GatewayNodeDeviceProperties.Light_Brightness].GetValue<int>();
+      //获取灯的新变化值
+      var brightness= e.New[GatewayNodeDeviceProperties.Light_Brightness].GetValue<int>();
+     }
+
+}
+
+
+//在此，为了更确切的使用相关数据，本库提供了相关数据模型，可以通过 扩展方法YeelightProExtension.ParmasConverter<T> 直接转换成相应的模型
+//模型 在 YeelightPro.Models 下
+
+//举例:
+//模型属性举例： 获取 pid为 198888的 ⾊温可调灯具 GatewayNodeDeviceType.Light_Temperature
+
+ var device= _client.NodeDevices[198888];
+
+ var light= device.Params.ParmasConverter<YeelightPro.Models.LightModel>();
+//获取灯的亮度
+ var brightness= light.Brightness;
+//获取灯的色温
+var brightness= light.ColorTemperature
+
+//其他依次类推
+
 
 ```

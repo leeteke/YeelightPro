@@ -16,7 +16,7 @@ namespace YeelightPro
     public static class YeelightProExtension
     {
         /// <summary>
-        /// 序列话的时候将string转换成enum，并且忽略大小
+        /// 反序列化的将string转换成enum，并且忽略大小
         /// </summary>
         internal static JsonSerializerOptions JSO = new() { PropertyNameCaseInsensitive = true, Converters = { new JsonStringEnumConverter() } };
 
