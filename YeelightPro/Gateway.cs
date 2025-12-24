@@ -7,10 +7,10 @@ using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Net.WebSockets;
-using System.Runtime.Intrinsics.Arm;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
 
 namespace YeelightPro
 {
@@ -54,7 +54,7 @@ namespace YeelightPro
         //    IPEndPoint iep = new(System.Net.IPAddress.Broadcast, BroadcastPoint);
         //    var sendData = Encoding.UTF8.GetBytes(BroadcastMsg);
         //    udp.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.Broadcast, 1);
-           
+
 
         //    string? recMsg = null;//接受到的数据
 
@@ -130,17 +130,11 @@ namespace YeelightPro
                 _ => [],
             };
         }
+
+
         #endregion
-
-        #region PrivateStatic
-
-        /// <summary>
-        /// Json的PNCI
-        /// </summary>
-        static JsonSerializerOptions PNCIOptions = new JsonSerializerOptions() { PropertyNameCaseInsensitive = true };
 
         static JsonSerializerOptions CCNullOptions = new JsonSerializerOptions() { DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull, PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
-        #endregion
 
         #region Properties
         /// <summary>
@@ -252,7 +246,7 @@ namespace YeelightPro
         {
             if (_socket?.Connected == true)
                 throw new GatewayRepeatedConnectException();
-                       
+
 
             if (newIPAddress != null)
             {
@@ -381,32 +375,35 @@ namespace YeelightPro
         /// <returns></returns>
         public async Task<(bool executed, string? msg)> CommandAsync(GatewayCommandModel[] commands, CancellationToken cancellationToken = default)
         {
-            var ja = new JsonArray();
-            foreach (var command in commands)
+            try
             {
-                ja.Add(command);
-            }
 
-            var result = await SendAndGetAsync(new JsonObject()
-            {
+                var result = await SendAndGetAsync(new JsonObject()
+                {
                 {"id",GetUUID() },
                 {"method",GatewayMethod.Set_Prop},
-                {"nodes",ja }
-            }, cancellationToken).ConfigureAwait(false);
+                {"nodes", JsonSerializer.SerializeToNode(commands, typeof(GatewayCommandModel[]), GatewayJsonSerializerContextAOT.Default)}
+                }, cancellationToken).ConfigureAwait(false);
 
-            if (result != null)
-            {
-                if (result["result"]?.GetValue<string>() == "ok")
+                if (result != null)
                 {
-                    return (true, null);
+                    if (result["result"]?.GetValue<string>() == "ok")
+                    {
+                        return (true, null);
+                    }
+                    else
+                    {
+                        return (false, result["data"]?["msg"]?.GetValue<string>());
+                    }
                 }
-                else
-                {
-                    return (false, result["data"]?["msg"]?.GetValue<string>());
-                }
+
+                return (false, "执行超时，请留意设备变化。");
             }
-
-            return (false, "执行超时，请留意设备变化。");
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                throw;
+            }
 
         }
 
@@ -416,17 +413,13 @@ namespace YeelightPro
         /// <returns></returns>
         public async Task<(bool executed, string? msg)> ScenesCommandAsync(GatewayScenesCommandModel[] commands, CancellationToken cancellationToken = default)
         {
-            var ja = new JsonArray();
-            foreach (var command in commands)
-            {
-                ja.Add(command);
-            }
+
 
             var result = await SendAndGetAsync(new JsonObject()
             {
                 {"id",GetUUID() },
                 {"method",GatewayMethod.Set_Prop},
-                {"scenes",ja }
+                {"scenes",JsonSerializer.SerializeToNode(commands,typeof(GatewayScenesCommandModel[]),GatewayJsonSerializerContextAOT.Default) }
             }, cancellationToken).ConfigureAwait(false);
 
 
@@ -565,6 +558,7 @@ namespace YeelightPro
                             RaisePropertiesUpdated(js);
                             break;
                         default:
+
                             //其他为返回结果不在此范围
                             break;
                     }
@@ -665,9 +659,9 @@ namespace YeelightPro
         /// <param name="js"></param>
         private void UpdateTopology(JsonNode js)
         {
-            var ts = js["nodes"]!.Deserialize<GatewayTopologyModel[]>(PNCIOptions);
-            if (ts != null)
+            if (js["nodes"]!.Deserialize(typeof(GatewayTopologyModel[]), GatewayJsonSerializerContextAOT.Default) is GatewayTopologyModel[] ts)
             {
+                Console.WriteLine("okokokoko");
                 foreach (var item in ts)
                 {
 
@@ -763,9 +757,7 @@ namespace YeelightPro
 
                 var uuid = jsonObject["id"]!.GetValue<uint>();
 
-                var sendJson = JsonSerializer.Serialize(jsonObject, CCNullOptions) + "\r\n";
-
-
+                var sendJson = jsonObject.ToJsonString(CCNullOptions) + "\r\n";
 
                 TcpSend(sendJson);
                 int outTime = 3000;

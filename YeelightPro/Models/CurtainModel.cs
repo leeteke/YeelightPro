@@ -43,4 +43,35 @@ namespace YeelightPro.Models
         [JsonPropertyName("trs")]
         public int? TitleRouteSetted { get; set; }
     }
+
+    /// <summary>
+    /// 窗帘电机/梦幻帘电机 设置
+    /// </summary>
+    public class CurtainSet : SetBase
+    {
+
+
+        /// <summary>
+        /// 期望窗帘目标开合度
+        /// </summary>
+        /// <param name="value">值范围：0~100</param>
+        /// <returns></returns>
+        public CurtainSet SetPosition(int value)
+        {
+            _result.Add(GatewayNodeDeviceProperties.Curtain_TargetPosition,value);
+            return this;
+        }
+
+        /// <summary>
+        /// 梦幻帘目标旋转角度
+        /// </summary>
+        /// <param name="value">值范围：0~180</param>
+        /// <returns></returns>
+        public CurtainSet SetAngle(int value)
+        {
+            _result.Add(GatewayNodeDeviceProperties.Curtain_TargetAngle, value);
+            return this;
+        }
+    
+    }
 }

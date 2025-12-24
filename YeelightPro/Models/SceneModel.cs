@@ -11,7 +11,7 @@ namespace YeelightPro.Models
     /// <summary>
     /// 情景面板
     /// </summary>
-    internal class SceneModel:ModelBase
+    public class SceneModel:ModelBase
     {
         /// <summary>
         /// 情景面板按键事件params属性-按键的ID

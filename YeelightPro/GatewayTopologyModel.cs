@@ -11,7 +11,7 @@ namespace YeelightPro
     /// <summary>
     /// 拓扑模型
     /// </summary>
-    internal class GatewayTopologyModel
+    public class GatewayTopologyModel
     {
         /// <summary>
         /// 节点类型

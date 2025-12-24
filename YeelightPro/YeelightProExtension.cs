@@ -30,7 +30,7 @@ namespace YeelightPro
         /// <returns></returns>
         public static T? ParmasConverter<T>(this JsonObject parms) where T : ModelBase
         {
-            return parms.Deserialize<T>(JSO);
+            return parms.Deserialize(typeof(T), GatewayJsonSerializerContextAOT.Default) as T;
         }
 
     }

@@ -1,6 +1,6 @@
 # YeelightPro 局域网本地控制
 [个人根据官方局域网通讯协议协议开发，非官方库]
-
+[现在已支持Native AOT！！！]
 Yeelight Pro照明控制系统由硬件、云端、用户App组成。硬件包括网关、灯具、传感器、面板、全面屏等组成。网关通过蓝牙MESH协议与其他蓝牙mesh子设备进行通信，通过Wi-Fi或者有线与云端/本地服务器通信。
 
 本库通过 局域网协议（Ver2.4）与 S21/S21增强版 网关进行本地通讯控制以上描述设备，相关可控制设备详见： https://cn.yeelight.com/zh_CN/pro 
@@ -8,10 +8,9 @@ Yeelight Pro照明控制系统由硬件、云端、用户App组成。硬件包�
 （特别说明：非 Yeelight 普通线上产品控制库，也就是连接米家的那些设备，无法使用本库控制。）
 
 ## Nuget
-[![NUGET](https://img.shields.io/badge/nuget-2.4.0-blue.svg)](https://www.nuget.org/packages/YeelightPro)
+[![NUGET](https://img.shields.io/badge/nuget-2.4.1-blue.svg)](https://www.nuget.org/packages/YeelightPro)
 
-
-    dotnet add package YeelightPro --version 2.4.0
+    dotnet add package YeelightPro --version 2.4.1
 
 ## 基本使用方法
 
@@ -71,7 +70,7 @@ var lightCmd=new GatewayCommandModel()
     //节点设备ID 
     Id=id,
     //期待设置的属性和⽬标值
-    Set=new()
+    Set=new Dictionary<string, object>()
     {
         //从 GatewayNodeDeviceProperties 选择属性名称，属性注释上表明了 操作包含 ‘写’ 的是属于可控的，并且标标明了相关类型可范围
        { GatewayNodeDeviceProperties.Light_Power, true }, //开灯
@@ -80,7 +79,23 @@ var lightCmd=new GatewayCommandModel()
     //渐变事件 单位 毫秒
     Duration=2000
 };
-
+//新增工厂方法协助设置
+//在YeelightPro.Models 名明明空间下 xxxSet类，协助生成 Dictionary<string, object>
+//new LightSet().SetPower(true).SetBrightness(50).ToSet() 生成-> new Dictionary<string, object>()  {     { GatewayNodeDeviceProperties.Light_Power, true },       { GatewayNodeDeviceProperties.Light_Brightness, 50}   }
+//该方法使用后 一定要使用.ToSet()为结尾哈！;
+var lightCmd=new GatewayCommandModel()
+{
+    //节点设备ID 
+    Id=id,
+    //期待设置的属性和⽬标值
+    Set=new LightSet()
+        .SetPower(true)
+        .SetBrightness(50)
+        .SetColorTemperature(3000)
+        .ToSet() }
+    //渐变事件 单位 毫秒
+    Duration=2000
+};
 
 //行为举例：构建控制床帘类设备命令
 var curtainCmd=new GatewayCommandModel()

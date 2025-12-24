@@ -78,4 +78,88 @@ namespace YeelightPro.Models
         [JsonPropertyName("tgt")]
         public int? TargetTemperature { get; set; }
     }
+
+
+    /// <summary>
+    /// 设置 浴霸加热器
+    /// </summary>
+    public class BathHeaterSet : SetBase
+    {
+        /// <summary>
+        /// 开关
+        /// </summary>
+        /// <param name="isOn"></param>
+        /// <returns></returns>
+        public BathHeaterSet SetPower(bool isOn)
+        {
+            _result.Add(GatewayNodeDeviceProperties.BathHeater_Power, isOn);
+            return this;
+        }
+        /// <summary>
+        /// 浴霸加热模式
+        /// </summary>
+        /// <param name="value"><para>干燥-1</para><para>除雾-2</para><para>快速除雾-3</para><para>急速加热-4</para></param>
+        /// <returns></returns>
+        public BathHeaterSet SetMode(int value)
+        {
+            _result.Add(GatewayNodeDeviceProperties.BathHeater_Mode, value);
+            return this;
+        }
+        /// <summary>
+        /// 浴霸延时关闭
+        /// </summary>
+        /// <param name="value">1~120分钟</param>
+        /// <returns></returns>
+        public BathHeaterSet SetDelayOff(int value)
+        {
+            _result.Add(GatewayNodeDeviceProperties.BathHeater_DelayOff, value);
+            return this;
+        }
+
+        /// <summary>
+        /// 浴霸换气挡位
+        /// </summary>
+        /// <param name="value"><para>关闭-0</para><para>抵挡-1</para><para>中档-2</para> <para>高档-3</para></param>
+        /// <returns></returns>
+        public BathHeaterSet SetVentilation(int value)
+        {
+            _result.Add(GatewayNodeDeviceProperties.BathHeater_Ventilation, value);
+            return this;
+        }
+
+
+        /// <summary>
+        /// 浴霸吹风挡位
+        /// </summary>
+        /// <param name="value"><para>关闭-0</para><para>抵挡-1</para><para>中档-2</para> <para>高档-3</para></param>
+        /// <returns></returns>
+        public BathHeaterSet SetFan(int value)
+        {
+            _result.Add(GatewayNodeDeviceProperties.BathHeater_Fan, value);
+            return this;
+        }
+
+        /// <summary>
+        /// 浴霸加热挡位
+        /// </summary>
+        /// <param name="value"><para>关闭-0</para><para>抵挡-1</para><para>中档-2</para> <para>高档-3</para></param>
+        /// <returns></returns>
+        public BathHeaterSet SetHeat(int value)
+        {
+            _result.Add(GatewayNodeDeviceProperties.BathHeater_Heat, value);
+            return this;
+        }
+
+        /// <summary>
+        /// 目标室内温度
+        /// </summary>
+        /// <param name="value">0~50</param>
+        /// <returns></returns>
+        public BathHeaterSet SetTemperature(int value)
+        {
+            _result.Add(GatewayNodeDeviceProperties.BathHeater_TargetTemperature, value);
+            return this;
+        }
+    }
+
 }

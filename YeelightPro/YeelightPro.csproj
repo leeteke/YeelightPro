@@ -1,20 +1,22 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>netstandard2.1</TargetFramework>
 	<GenerateDocumentationFile>true</GenerateDocumentationFile>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-	<Version>2.4.0</Version>
+	<Version>2.4.1</Version>
 	<Authors>leeteke</Authors>
+	  <LangVersion>latest</LangVersion>
 	<PackageReadmeFile>README.md</PackageReadmeFile>
-	<PackageTags>yeelight;yeelightpro;易来;</PackageTags>
+	<PackageTags>yeelight;yeelightpro;易来;aot;nativeaot;</PackageTags>
 	<PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
 	<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
 	<PackageIcon>Yeelight_Pro512x512.png</PackageIcon>
 	<Title>YeelightPro 局域网控制库</Title>
 	<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 	<Description>
+		[2.4.1+版本已支持AOT]
 		Y Yeelight Pro照明控制系统由硬件、云端、用户App组成。硬件包括网关、灯具、传感器、面板、全面屏等组成。网关通过蓝牙MESH协议与其他蓝牙mesh子设备进行通信，通过Wi-Fi或者有线与云端/本地服务器通信;
 
 		本库通过 局域网协议与 S21/S21增强版 网关进行本地通讯控制以上描述设备，相关可控制设备详见（https://cn.yeelight.com/zh_CN/pro）；
@@ -34,6 +36,10 @@
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Text.Json" Version="10.0.1" />
   </ItemGroup>
 
   <ItemGroup>
