@@ -660,7 +660,6 @@ namespace YeelightPro
         {
             if (js["nodes"]!.Deserialize(typeof(GatewayTopologyModel[]), GatewayJsonSerializerContextAOT.Default) is GatewayTopologyModel[] ts)
             {
-                Console.WriteLine("okokokoko");
                 foreach (var item in ts)
                 {
 

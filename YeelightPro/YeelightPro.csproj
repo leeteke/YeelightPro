@@ -5,7 +5,7 @@
 	<GenerateDocumentationFile>true</GenerateDocumentationFile>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-	<Version>2.4.2</Version>
+	<Version>2.4.3</Version>
 	<Authors>leeteke</Authors>
 	  <LangVersion>latest</LangVersion>
 	<PackageReadmeFile>README.md</PackageReadmeFile>
