@@ -8,9 +8,9 @@ Yeelight Pro照明控制系统由硬件、云端、用户App组成。硬件包�
 （特别说明：非 Yeelight 普通线上产品控制库，也就是连接米家的那些设备，无法使用本库控制。）
 
 ## Nuget
-[![NUGET](https://img.shields.io/badge/nuget-2.4.1-blue.svg)](https://www.nuget.org/packages/YeelightPro)
+[![NUGET](https://img.shields.io/badge/nuget-2.4.2-blue.svg)](https://www.nuget.org/packages/YeelightPro)
 
-    dotnet add package YeelightPro --version 2.4.1
+    dotnet add package YeelightPro --version 2.4.2
 
 ## 基本使用方法
 

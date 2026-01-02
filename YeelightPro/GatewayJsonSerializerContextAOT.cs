@@ -31,6 +31,23 @@ namespace YeelightPro
     [JsonSerializable(typeof(SensorPersonModel))]
     [JsonSerializable(typeof(SwitchDoubleModel))]
     [JsonSerializable(typeof(SwitchMoreModel))]
+    [JsonSerializable(typeof(float))]
+    [JsonSerializable(typeof(double))]
+    [JsonSerializable(typeof(decimal))]
+    [JsonSerializable(typeof(bool))]
+    [JsonSerializable(typeof(int))]
+    [JsonSerializable(typeof(short))]
+    [JsonSerializable(typeof(uint))]
+    [JsonSerializable(typeof(ushort))]
+    [JsonSerializable(typeof(bool))]
+    [JsonSerializable(typeof(long))]
+    [JsonSerializable(typeof(ulong))]
+    [JsonSerializable(typeof(string))]
+    [JsonSerializable(typeof(char))]
+    [JsonSerializable(typeof(byte))]
+    [JsonSerializable(typeof(sbyte))]
+    [JsonSerializable(typeof(nint))]
+    [JsonSerializable(typeof(nuint))]
     public partial class GatewayJsonSerializerContextAOT : JsonSerializerContext
     {
     }

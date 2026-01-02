@@ -401,8 +401,7 @@ namespace YeelightPro
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
-                throw;
+                return (false, ex.Message);
             }
 
         }

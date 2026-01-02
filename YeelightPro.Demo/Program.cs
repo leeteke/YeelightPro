@@ -82,14 +82,21 @@ namespace YeelightPro.Demo
                         break;
 
                     case "cmd":
-                        _ = gateway.CommandAsync([
-                            new() {
-                                Id = 666666,
-                                Set = new LightSet()
-                                .SetBrightness(80)
-                                .SetColorTemperature(6000)
-                                .ToSet() }
-                            ]);
+
+                        var cmdA = new GatewayCommandModel()
+                        {
+                            Id = 666666,
+                            Set = new()
+                            {
+                                { GatewayNodeDeviceProperties.Light_Power, true }
+                            }
+                        };
+
+                        float brightness_pct = 80;
+                        double color_temp_kelvin = 5000;
+                        cmdA.Set.Add(GatewayNodeDeviceProperties.Light_Brightness, brightness_pct);
+                        cmdA.Set.Add(GatewayNodeDeviceProperties.Light_ColorTemperature, color_temp_kelvin);
+                        _ = gateway.CommandAsync([cmdA]);
                         break;
                     case "exit":
                         return;
