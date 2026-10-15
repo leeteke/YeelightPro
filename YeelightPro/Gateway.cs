@@ -26,7 +26,7 @@ namespace YeelightPro
         /// <summary>
         /// UDP⼴播格式
         /// </summary>
-        public const string BroadcastMsg = "YEELIGHT_GATEWAY_CONTROL_DISCOVER\r\n";
+        public const string BroadcastMsg = "YEELIGHT_GATEWAY_CONTROL_DISCOVER";
         /// <summary>
         /// UDP广播端口号
         /// </summary>

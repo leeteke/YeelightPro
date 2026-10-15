@@ -15,12 +15,6 @@ namespace YeelightPro
     /// </summary>
     public static class YeelightProExtension
     {
-        /// <summary>
-        /// 反序列化的将string转换成enum，并且忽略大小
-        /// </summary>
-        internal static JsonSerializerOptions JSO = new() { PropertyNameCaseInsensitive = true, Converters = { new JsonStringEnumConverter() } };
-
-
 
         /// <summary>
         /// 参数转换器
@@ -29,6 +23,17 @@ namespace YeelightPro
         /// <param name="parms">参数</param>
         /// <returns></returns>
         public static T? ParmasConverter<T>(this JsonObject parms) where T : ModelBase
+        {
+            return parms.Deserialize(typeof(T), GatewayJsonSerializerContextAOT.Default) as T;
+        }
+
+        /// <summary>
+        /// 参数转换器
+        /// </summary>
+        /// <typeparam name="T">根据设备类型从 Models 里选择相应模型</typeparam>
+        /// <param name="parms">参数</param>
+        /// <returns></returns>
+        public static T? ParmasConverter<T>(this JsonNode parms) where T : ModelBase
         {
             return parms.Deserialize(typeof(T), GatewayJsonSerializerContextAOT.Default) as T;
         }

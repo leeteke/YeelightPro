@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using YeelightPro.Models;
@@ -48,6 +49,7 @@ namespace YeelightPro
     [JsonSerializable(typeof(sbyte))]
     [JsonSerializable(typeof(nint))]
     [JsonSerializable(typeof(nuint))]
+    [JsonSerializable(typeof(JsonElement))]
     public partial class GatewayJsonSerializerContextAOT : JsonSerializerContext
     {
     }
