@@ -10,7 +10,7 @@ namespace YeelightPro
     /// <summary>
     /// 节点设备数据模型
     /// </summary>
-    public class GatewayNodeDeviceModel
+    public class GatewayNodeModel
     {
         /// <summary>
         /// 节点类型
@@ -18,7 +18,7 @@ namespace YeelightPro
         public GatewayNodeType NodeType { get; set; }
 
         /// <summary>
-        /// 设备名称
+        /// 节点名称
         /// </summary>
         public string Name { get; set; } = null!;
 
@@ -26,6 +26,11 @@ namespace YeelightPro
         /// 设备ID
         /// </summary>
         public ulong Id { get; set; }
+
+        /// <summary>
+        /// 房间ID
+        /// </summary>
+        public ulong RoomId { get; set; }
 
         /// <summary>
         /// 节点设备类型
@@ -50,6 +55,6 @@ namespace YeelightPro
         /// <summary>
         /// 数据更新时间
         /// </summary>
-        public DateTime UpdateTime { get; internal set; }
+        public DateTimeOffset UpdateTime { get; internal set; }
     }
 }

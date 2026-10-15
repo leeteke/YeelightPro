@@ -12,7 +12,16 @@ namespace YeelightPro
     /// </summary>
     public class GatewayNodeDeviceProperties
     {
+        #region 通用
+        /// <summary>
+        /// 通用属性-在线状态
+        /// <para>true：在线</para>
+        /// <para>false：离线</para>
+        /// <para>操作：读、上报</para>
+        /// </summary>
+        public const string Online = "o";
 
+        #endregion
 
         #region 灯
 

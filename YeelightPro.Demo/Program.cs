@@ -1,4 +1,5 @@
-﻿using YeelightPro.Models;
+﻿using System.Text.Json;
+using YeelightPro.Models;
 
 namespace YeelightPro.Demo
 {
@@ -45,16 +46,21 @@ namespace YeelightPro.Demo
             };
             gateway.EventTriggered += (o, e) =>
             {
-
+                Console.WriteLine($"id:{e.Id} type:{e.NodeType} value:{e.Value} parms:{e.Params.ToJsonString()}");
             };
             gateway.PropertiesUpdated += (o, e) =>
             {
-                Console.WriteLine($"Id:{e.Id} old:{e.Old.ToJsonString()} new:{e.New.ToJsonString()}");
+                Console.WriteLine($"Id:{e.Id}  old:{e.Old.ToJsonString()} new:{e.New.ToJsonString()}");
+            };
+            gateway.TopologyUpdated += (o, e) =>
+            {
+                Console.WriteLine($"type;{e.Type} Id:{JsonSerializer.Serialize(e.Node)} ");
             };
             gateway.Connect();
             gateway.UpdateTopology();
 
 
+            
 
 
 
@@ -68,14 +74,14 @@ namespace YeelightPro.Demo
                         break;
 
                     case "showNodes":
-                        Console.WriteLine(string.Join("\r\n", gateway.NodeDevices.Select(p => $"id:{p.Key} name:{p.Value.Name}")));
+                        Console.WriteLine(string.Join("\r\n", gateway.Nodes.Select(p => $"id:{p.Key} name:{p.Value.Name}")));
                         break;
 
                     case "test":
 
-                        var device = gateway.NodeDevices[666666];
+                        var node = gateway.Nodes[666666];
 
-                        var light = device.Params.ParmasConverter<YeelightPro.Models.LightModel>();
+                        var light = node.Params.ParmasConverter<YeelightPro.Models.LightModel>();
                         Console.WriteLine(light.Brightness);
                         Console.WriteLine(light.ColorTemperature);
 

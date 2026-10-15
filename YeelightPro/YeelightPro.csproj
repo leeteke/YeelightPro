@@ -5,7 +5,7 @@
 	<GenerateDocumentationFile>true</GenerateDocumentationFile>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-	<Version>2.4.4</Version>
+	<Version>2.4.6</Version>
 	<Authors>leeteke</Authors>
 	  <LangVersion>latest</LangVersion>
 	<PackageReadmeFile>README.md</PackageReadmeFile>
@@ -17,11 +17,13 @@
 	<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 	<Description>
 		[2.4.1+版本已支持AOT]
+
 		Y Yeelight Pro照明控制系统由硬件、云端、用户App组成。硬件包括网关、灯具、传感器、面板、全面屏等组成。网关通过蓝牙MESH协议与其他蓝牙mesh子设备进行通信，通过Wi-Fi或者有线与云端/本地服务器通信;
 
 		本库通过 局域网协议与 S21/S21增强版 网关进行本地通讯控制以上描述设备，相关可控制设备详见（https://cn.yeelight.com/zh_CN/pro）；
 
 		（特别说明：非 Yeelight 普通线上产品控制库，也就是连接米家的那些设备，无法使用本库控制。）
+		[2.4.4+版本修正了GatewayNodeDeviceModel的名称，更改为GatewayNodeModel，此举动使其与API文档描述的概念更贴近。]
 	</Description>
 	<Copyright>MIT</Copyright>
 	<PackageProjectUrl>https://github.com/leeteke/YeelightPro</PackageProjectUrl>

@@ -8,9 +8,9 @@ Yeelight Pro照明控制系统由硬件、云端、用户App组成。硬件包�
 （特别说明：非 Yeelight 普通线上产品控制库，也就是连接米家的那些设备，无法使用本库控制。）
 
 ## Nuget
-[![NUGET](https://img.shields.io/badge/nuget-2.4.4-blue.svg)](https://www.nuget.org/packages/YeelightPro)
+[![NUGET](https://img.shields.io/badge/nuget-2.4.6-black.svg)](https://www.nuget.org/packages/YeelightPro)
 
-    dotnet add package YeelightPro --version 2.4.4
+    dotnet add package YeelightPro --version 2.4.6
 
 ## 基本使用方法
 
@@ -55,6 +55,8 @@ Yeelight Pro照明控制系统由硬件、云端、用户App组成。硬件包�
         _gateway.EventTriggered += Gateway_EventTriggered;
         //设备属性变化事件
         _gateway.PropertiesUpdated += Gateway_PropertiesUpdated;
+        //拓扑更新事件
+        _gateway.TopologyUpdated += Gateway_TopologyUpdated;
         //连接
         _gateway.Connect();
 
@@ -118,22 +120,22 @@ var curtainCmd=new GatewayCommandModel()
 (bool executed, string? msg)=await _gateway.CommandAsync([lightCmd,curtainCmd]);
 
 ```
-### 读取设备属性
+### 读取节点属性
 
 ```csharp
 
-//设备属性模型为 GatewayNodeDeviceModel
-//所有设备属性名称以及定义都放在了 GatewayNodeDeviceProperties
-//其中 设备的详细参数为  GatewayNodeDeviceModel.Params，该类型为System.Text.Json.Nodes.JsonObject
+//节点模型为 GatewayNodeModel
+//所有设节点属性名称以及定义都放在了 GatewayNodeDeviceProperties
+//其中 设备的详细参数为  GatewayNodeModel.Params，该类型为System.Text.Json.Nodes.JsonObject
 //并且  设备属性更新事件  与 设备触发事件 的相关参数 也为 System.Text.Json.Nodes.JsonObject 类型
 
 //模型属性举例： 获取 pid为 198888的 ⾊温可调灯具 GatewayNodeDeviceType.Light_Temperature
 
- var device= _client.NodeDevices[198888];
+ var node= _client.NodeDevices[198888];
 //获取灯的亮度
- var brightness= device.Params[GatewayNodeDeviceProperties.Light_Brightness].GetValue<double>();
+ var brightness= node.Params[GatewayNodeDeviceProperties.Light_Brightness].GetValue<double>();
 //获取灯的色温
-var brightness= device.Params[GatewayNodeDeviceProperties.Light_ColorTemperature].GetValue<double>();
+var brightness= node.Params[GatewayNodeDeviceProperties.Light_ColorTemperature].GetValue<double>();
 
 
 //在属性更新时间里也同样
@@ -156,9 +158,9 @@ private void Gateway_PropertiesUpdated(object? sender, GatewayPropertiesUpdatedE
 //举例:
 //模型属性举例： 获取 pid为 198888的 ⾊温可调灯具 GatewayNodeDeviceType.Light_Temperature
 
- var device= _client.NodeDevices[198888];
+ var node= _client.NodeDevices[198888];
 
- var light= device.Params.ParmasConverter<YeelightPro.Models.LightModel>();
+ var light= node.Params.ParmasConverter<YeelightPro.Models.LightModel>();
 //获取灯的亮度
  var brightness= light.Brightness;
 //获取灯的色温

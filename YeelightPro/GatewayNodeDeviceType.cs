@@ -12,6 +12,11 @@ namespace YeelightPro
     public enum GatewayNodeDeviceType
     {
         /// <summary>
+        /// 非物理设备
+        /// </summary>
+        NoDevice=0,
+
+        /// <summary>
         /// 可开关灯具
         /// </summary>
         Light_Switchable = 1,

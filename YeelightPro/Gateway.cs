@@ -148,7 +148,7 @@ namespace YeelightPro
         /// <summary>
         /// 节点设备
         /// </summary>
-        public ConcurrentDictionary<ulong, GatewayNodeDeviceModel> NodeDevices => _devices;
+        public ConcurrentDictionary<ulong, GatewayNodeModel> Nodes => _nodes;
 
         /// <summary>
         /// 房间信息
@@ -159,6 +159,12 @@ namespace YeelightPro
         /// 情景信息
         /// </summary>
         public Dictionary<ulong, string> Scenes => _scenes;
+
+        /// <summary>
+        /// 获取当前网关拓扑项的 GatewayTopologyModel 数组。
+        /// </summary>
+        /// <remarks>返回对内部数组的直接引用；可能为 null。调用方不应修改返回数组以避免影响对象内部状态。</remarks>
+        public GatewayTopologyModel[] Topologies => _currentTopologies;
 
         #endregion
 
@@ -173,11 +179,12 @@ namespace YeelightPro
 
         private uint _uuid = 100000;
         private readonly object _uuidLock = new();
-        private ConcurrentDictionary<ulong, GatewayNodeDeviceModel> _devices = new ConcurrentDictionary<ulong, GatewayNodeDeviceModel>();//所有设备信息
+        private ConcurrentDictionary<ulong, GatewayNodeModel> _nodes = new ConcurrentDictionary<ulong, GatewayNodeModel>();//所有设备信息
         private Dictionary<ulong, string> _rooms = new Dictionary<ulong, string>();//所有房间信息
         private Dictionary<ulong, string> _scenes = new Dictionary<ulong, string>();//所有情景模式
         private ConcurrentDictionary<uint, JsonNode> _receiveQueue = new ConcurrentDictionary<uint, JsonNode>();//数据接受池
 
+        private GatewayTopologyModel[] _currentTopologies = [];
 
         #endregion
 
@@ -228,8 +235,8 @@ namespace YeelightPro
             _receivePool.Clear();
             _receivePool = null!;
 
-            _devices.Clear();
-            _devices = null!;
+            _nodes.Clear();
+            _nodes = null!;
 
             _disposed = true;
         }
@@ -329,13 +336,13 @@ namespace YeelightPro
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public async Task<GatewayNodeDeviceModel?> GetNodeDevicePropertiesAsync(ulong id, CancellationToken cancellationToken = default)
+        public async Task<GatewayNodeModel?> GetNodePropertiesAsync(ulong id, CancellationToken cancellationToken = default)
         {
 
             try
             {
 
-                if (_devices.TryGetValue(id, out var device))
+                if (_nodes.TryGetValue(id, out var node))
                 {
                     var result = await SendAndGetAsync(new JsonObject()
                     {
@@ -355,7 +362,7 @@ namespace YeelightPro
 
                             RaisePropertiesUpdated(result);
 
-                            return device;
+                            return node;
                         }
                     }
                 }
@@ -455,6 +462,12 @@ namespace YeelightPro
         public event EventHandler<GatewayEventTriggeredEventArgs>? EventTriggered;
 
         /// <summary>
+        /// 拓扑更新事件
+        /// <para>当mesh网络中设备或组信息发生变化时（如增删设备、改名、分组建立与解除等）。</para>
+        /// </summary>
+        public event EventHandler<GatewayTopologyUpdatedEventArgs>? TopologyUpdated;
+
+        /// <summary>
         /// 设备属性发生变化
         /// </summary>
         public event EventHandler<GatewayPropertiesUpdatedEventArgs>? PropertiesUpdated;
@@ -511,18 +524,7 @@ namespace YeelightPro
         }
 
 
-        /// <summary>
-        /// 获取随机端口
-        /// </summary>
-        /// <returns></returns>
-        public static int GetRandomUnusedPort()
-        {
-            var listener = new TcpListener(IPAddress.Any, 0);
-            listener.Start();
-            var port = ((IPEndPoint)listener.LocalEndpoint).Port;
-            listener.Stop();
-            return port;
-        }
+        
 
         /// <summary>
         /// 通知时间发生
@@ -557,8 +559,6 @@ namespace YeelightPro
                             RaisePropertiesUpdated(js);
                             break;
                         default:
-
-                            //其他为返回结果不在此范围
                             break;
                     }
 
@@ -574,7 +574,7 @@ namespace YeelightPro
             catch
             {
 
-                //这里这些异常暂时直接启用，因为 怕干扰tcp
+                //这里这些异常暂时直接起用，后期看有啥特例
             }
         }
 
@@ -623,15 +623,15 @@ namespace YeelightPro
                     var id = prop!["id"]?.GetValue<ulong>();
                     if (id != null)
                     {
-                        if (_devices.TryGetValue((ulong)id, out var device))
+                        if (_nodes.TryGetValue((ulong)id, out var node))
                         {
 
-                            var changed = AnalysisPropertiesChanged(ref device, prop.AsObject());
+                            var changed = AnalysisPropertiesChanged(ref node, prop.AsObject());
                             if (changed != null)
                             {
                                 Task.Run(() =>
                                 {
-                                    PropertiesUpdated?.Invoke(this, new GatewayPropertiesUpdatedEventArgs((ulong)id, device.Type, changed.Value.old, changed.Value.@new));
+                                    PropertiesUpdated?.Invoke(this, new GatewayPropertiesUpdatedEventArgs((ulong)id, node.Type, changed.Value.old, changed.Value.@new));
                                 });
                             }
                         }
@@ -651,54 +651,73 @@ namespace YeelightPro
             Task.Run(() => { CommunicationRecord?.Invoke(this, new GatewayCommunicationRecordEventArgs(isReceived, content)); });
         }
 
+        /// <summary>
+        /// 触发拓扑事件
+        /// </summary>
+        /// <param name="nodeId"></param>
+        /// <param name="type"></param>
+        private void RaiseTopologyUpdated(GatewayNodeModel node,GatewayTopologyUpdatedType type)
+        {
+            Task.Run(() => { TopologyUpdated?.Invoke(this, new GatewayTopologyUpdatedEventArgs(node, type)); });
+        }
+
 
         /// <summary>
-        /// 触发拓扑图
+        /// 触发拓扑更新
         /// </summary>
         /// <param name="js"></param>
         private void UpdateTopology(JsonNode js)
         {
             if (js["nodes"]!.Deserialize(typeof(GatewayTopologyModel[]), GatewayJsonSerializerContextAOT.Default) is GatewayTopologyModel[] ts)
             {
+                _currentTopologies = ts;
+
+
                 foreach (var item in ts)
                 {
 
-                    var dev = _devices.GetOrAdd(item.Id, p =>
+                    var node = _nodes.GetOrAdd(item.Id, p =>
                     {
-                        //新增设备通知
-                        return new GatewayNodeDeviceModel()
+                       var newNode=  new GatewayNodeModel()
                         {
                             Id = item.Id,
                             NodeType = item.NodeType,
                             Name = item.Name,
                             Type = item.Type,
-                            UpdateTime = DateTime.Now
+                            RoomId = item.RoomId,
+                            UpdateTime = DateTimeOffset.Now
                         };
+                        RaiseTopologyUpdated(newNode, GatewayTopologyUpdatedType.Add);
+                        return newNode;
                     });
 
 
-                    if (dev.Name != item.Name)
+                    if (node.Name != item.Name)
                     {
-                        var oldName = dev.Name;
+                        node.Name = item.Name;
+                        node.UpdateTime = DateTimeOffset.Now;
+                        RaiseTopologyUpdated(node, GatewayTopologyUpdatedType.Name);
+                    }
 
-                        dev.Name = item.Name;
-                        dev.UpdateTime = DateTime.Now;
-                        //属性更改通知->名称更改
 
+                    if (node.RoomId != item.RoomId)
+                    {
+                        node.RoomId = item.RoomId;
+                        node.UpdateTime = DateTimeOffset.Now;
+                        RaiseTopologyUpdated(node, GatewayTopologyUpdatedType.Room);
                     }
                 }
 
                 //检测发现所需要移除的设备
-                var removeIds = _devices.Keys.Except(ts.Select(p => p.Id));
+                var removeIds = _nodes.Keys.Except(ts.Select(p => p.Id));
                 if (removeIds != null)
                 {
                     //移除设备
                     foreach (var rmIds in removeIds)
                     {
-                        if (_devices.TryRemove(rmIds, out var _removeDev))
+                        if (_nodes.TryRemove(rmIds, out var rmNode))
                         {
-                            //移除设备通知
-                            //暂时用不到
+                            RaiseTopologyUpdated(rmNode, GatewayTopologyUpdatedType.Reomve);
                         }
 
                     }
@@ -791,10 +810,10 @@ namespace YeelightPro
         /// <summary>
         /// 分析属性的变化
         /// </summary>
-        /// <param name="device"></param>
+        /// <param name="node"></param>
         /// <param name="p"></param>
         /// <returns></returns>
-        private (JsonObject old, JsonObject @new)? AnalysisPropertiesChanged(ref GatewayNodeDeviceModel device, JsonObject p)
+        private (JsonObject old, JsonObject @new)? AnalysisPropertiesChanged(ref GatewayNodeModel node, JsonObject p)
         {
 
             //数据对比更新
@@ -802,29 +821,18 @@ namespace YeelightPro
             JsonObject old = new JsonObject();
             JsonObject @new = new JsonObject();
 
-            //检查姓名
-            var pName = p["n"]?.GetValue<string>();
-            if (pName != null)
-            {
-                if (pName != device.Name)
-                {
-                    old.Add("n", device.Name);
-                    @new.Add("n", pName);
-                    device.Name = pName;
-                }
-            }
 
             //检查在线
             var pOnline = p["o"]?.GetValue<bool>();
             if (pOnline != null)
             {
-                if (pOnline != device.IsOnline)
+                if (pOnline != node.IsOnline)
                 {
 
-                    old.Add("o", device.IsOnline);
-                    @new.Add("0", pOnline);
+                    old.Add("o", node.IsOnline);
+                    @new.Add("o", pOnline);
 
-                    device.IsOnline = (bool)pOnline;
+                    node.IsOnline = (bool)pOnline;
                 }
             }
 
@@ -832,9 +840,9 @@ namespace YeelightPro
             var po = p["params"]?.AsObject();
             if (po != null)
             {
-                if (device.Params == null)
+                if (node.Params == null)
                 {
-                    device.Params = po;
+                    node.Params = po;
                     foreach (var param in po)
                     {
                         @new.Add(param.Key, JsonNode.Parse(param.Value!.AsValue().ToJsonString()));
@@ -845,18 +853,18 @@ namespace YeelightPro
                 {
                     foreach (var item in po)
                     {
-                        if (device.Params.ContainsKey(item.Key))
+                        if (node.Params.ContainsKey(item.Key))
                         {
-                            if (device.Params[item.Key]?.ToJsonString() != item.Value?.ToJsonString())
+                            if (node.Params[item.Key]?.ToJsonString() != item.Value?.ToJsonString())
                             {
-                                old.Add(item.Key, JsonNode.Parse(device.Params[item.Key]!.AsValue().ToJsonString()));
+                                old.Add(item.Key, JsonNode.Parse(node.Params[item.Key]!.AsValue().ToJsonString()));
                                 @new.Add(item.Key, JsonNode.Parse(item.Value!.AsValue().ToJsonString()));
-                                device.Params[item.Key] = JsonNode.Parse(item.Value!.AsValue().ToJsonString());
+                                node.Params[item.Key] = JsonNode.Parse(item.Value!.AsValue().ToJsonString());
                             }
                         }
                         else
                         {
-                            device.Params.Add(item.Key, JsonNode.Parse(item.Value!.AsValue().ToJsonString()));
+                            node.Params.Add(item.Key, JsonNode.Parse(item.Value!.AsValue().ToJsonString()));
                             @new.Add(item.Key, JsonNode.Parse(item.Value!.AsValue().ToJsonString()));
                         }
 
@@ -872,7 +880,7 @@ namespace YeelightPro
             }
             else
             {
-                device.UpdateTime = DateTime.Now;
+                node.UpdateTime = DateTimeOffset.Now;
                 return (old, @new);
             }
 
